@@ -1,0 +1,17 @@
+# Source audio dump (already split into individual clips in /sounds)
+aimsounds.wav.wav
+sounds/aimsounds.wav.wav
+sounds/clip_*.wav
+
+# OS junk
+Thumbs.db
+.DS_Store
+desktop.ini
+
+# Editor
+.vscode/
+.idea/
+
+# Python
+__pycache__/
+*.pyc
