@@ -1,64 +1,61 @@
-# Haunted AIM — D&D Campaign Prop
+# Campaign — D&D Table Props
 
-A retro 2000s AOL Instant Messenger window with a haunted "buddy" who talks to your D&D party. Built as a single static HTML file — designed for iPad/iPhone Safari, deployable on GitHub Pages.
+A growing collection of single-page, themed, interactable webpages used as in-game props during D&D sessions. Players touch them on an iPad at the table.
+
+Hosted on GitHub Pages. Live at **https://spourshalchi.github.io/campaign/** (rename pending).
 
 ## What's in here
 
 ```
-DnDAimBot/
-├── index.html        ← the entire app (HTML + CSS + JS)
-├── sounds/           ← drop classic AIM .wav files here (see sounds/README.md)
-└── README.md         ← this file
+.
+├── index.html        ← landing page (Programs menu)
+├── aim/              ← Haunted AOL Instant Messenger prop
+│   ├── index.html
+│   └── sounds/
+├── CLAUDE.md         ← agent guide for adding new props
+├── README.md         ← this file
+└── split_sounds.py   ← utility for splitting WAV dumps into clips
 ```
+
+## Current props
+
+| Prop | Path  | Vibe                                          |
+|------|-------|-----------------------------------------------|
+| AIM  | `aim/`| Haunted 2000s AOL Instant Messenger; branching dialogue with a "buddy" who knows things they shouldn't |
+
+## Adding a new prop
+
+See [CLAUDE.md](CLAUDE.md) for the full pattern + iPad/iOS gotchas. Short version:
+
+1. `mkdir <prop-name>/`
+2. Build `<prop-name>/index.html` (single self-contained file — HTML + CSS + JS + assets folder beside it)
+3. Add a tile in the root `index.html` linking to `/<prop-name>/`
+4. Test on the actual iPad (the audio bug from CLAUDE.md is invisible on desktop)
+5. Push to `main`. GitHub Pages redeploys in ~30–60 seconds.
 
 ## Local preview
 
-Just double-click `index.html`. **Note:** sounds won't play from `file://` on some browsers. To preview audio locally, run a tiny static server from this folder:
+`file://` doesn't work — `fetch()` and audio are blocked. Always serve via HTTP:
 
 ```bash
-# Python 3
 python -m http.server 8000
-# then open http://localhost:8000 on your iPad (same Wi-Fi)
+# Open http://localhost:8000 in any browser
+# Or http://<your-LAN-ip>:8000 from the iPad on the same Wi-Fi
 ```
 
-## Deploy to GitHub Pages
+## iPad setup at the table
 
-1. Create a new GitHub repo (e.g. `dnd-aim-bot`) and push these files to `main`.
-2. Repo → **Settings** → **Pages** → Source: **Deploy from a branch** → Branch: **main**, folder: **/ (root)** → Save.
-3. After ~30 seconds your site is live at `https://<your-username>.github.io/<repo-name>/`.
-4. Open that URL in Safari on the iPad. Tap the **Share** icon → **Add to Home Screen** for a fullscreen, no-Safari-chrome experience at the table.
+1. In Safari on the iPad, open the live URL above
+2. Tap **Share** → **Add to Home Screen** → **Add**
+3. Launch from the home screen icon — fullscreen, no Safari chrome, looks like a real app
+4. After any update push, cache-bust by appending `?v=<n>` to the URL or delete + re-add the icon
 
-## Editing the dialogue
+## Audio asset prep
 
-Open `index.html` and find the `DIALOGUE` block (near the top of the `<script>` section). Each node looks like:
+If a sound source comes as one big WAV with multiple clips:
 
-```js
-nodeKey: {
-  ghost: ["first message", "second message", "..."],
-  choices: [
-    { text: "what the player taps", next: "anotherNodeKey" },
-    { text: "another option", next: "yetAnotherKey" }
-  ]
-}
+```bash
+python split_sounds.py
 ```
 
-- The conversation always starts at the node named `start`.
-- A node with `choices: []` ends the conversation (ghost signs off).
-- `next` can point to any other node key — including looping back to earlier nodes.
-
-## Editing the personas
-
-At the top of the `<script>` block, the `CONFIG` object controls:
-
-- `playerScreenName` — shown on player messages (e.g. `"TheParty"`)
-- `ghostScreenName` — shown on ghost messages and in the title bar
-- `typingSpeedMs` — fake "typing..." duration per character
-- `ghostMessageGapMs` — pause between consecutive ghost lines
-- `sounds` — file paths to the four AIM sounds
-
-## iPad / iPhone notes
-
-- Audio is unlocked when the player taps **Sign On** (iOS Safari requires a user gesture).
-- The viewport is locked against pinch-zoom so the chat fills the screen.
-- "Add to Home Screen" launches the app fullscreen with a black status bar — best presentation mode at the table.
-- Tested layouts down to iPhone SE width.
+Detects silent gaps and chops the file into numbered clips. Tweak the constants at the top of the script if it splits poorly. Update `INPUT_PATH` to point at the dump file for your new prop first.

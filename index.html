@@ -5,160 +5,51 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="AIM">
+<meta name="apple-mobile-web-app-title" content="Campaign">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#0a246a">
-<title>AOL Instant Messenger</title>
+<title>Campaign — Programs</title>
 <style>
   :root {
-    --aim-blue-dark: #0a246a;
-    --aim-blue-mid: #3a6ea5;
-    --aim-blue-light: #a6caf0;
-    --aim-yellow: #ffcc00;
-    --aim-cream: #fffce0;
-    --win-face: #ece9d8;
-    --win-shadow: #aca899;
-    --win-light: #ffffff;
-    --win-dark: #716f64;
-    --ghost-color: #b22222;
-    --player-color: #00008b;
     --safe-top: env(safe-area-inset-top);
     --safe-bot: env(safe-area-inset-bottom);
   }
-
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-
   html, body {
     margin: 0; padding: 0;
-    height: 100%;
-    width: 100%;
+    height: 100%; width: 100%;
     overflow: hidden;
     overscroll-behavior: none;
-    background: #008080;
     font-family: Tahoma, Geneva, "MS Sans Serif", sans-serif;
-    -webkit-user-select: none;
-    user-select: none;
-    -webkit-touch-callout: none;
-  }
-
-  body {
+    -webkit-user-select: none; user-select: none; -webkit-touch-callout: none;
     background:
       repeating-linear-gradient(45deg, rgba(0,0,0,0.04) 0 2px, transparent 2px 6px),
       #008080;
+  }
+  body {
     padding: var(--safe-top) max(8px, env(safe-area-inset-right)) var(--safe-bot) max(8px, env(safe-area-inset-left));
-    display: flex;
-    align-items: stretch;
-    justify-content: center;
+    display: flex; align-items: center; justify-content: center;
   }
-
-  /* ===== Sign-on screen ===== */
-  #signon {
-    position: fixed; inset: 0;
-    background: #ece9d8;
-    display: flex; flex-direction: column;
-    align-items: center; justify-content: flex-start;
-    padding: calc(var(--safe-top) + 16px) 16px calc(var(--safe-bot) + 16px);
-    z-index: 100;
-  }
-  #signon .titlebar {
-    width: 100%; max-width: 420px;
-    background: linear-gradient(180deg, #0a64bd 0%, #0a246a 100%);
-    color: white; font-weight: bold;
-    padding: 6px 10px;
-    display: flex; align-items: center; gap: 8px;
-    border: 2px outset #d4d0c8;
-    border-bottom: none;
-  }
-  #signon .titlebar .runner { font-size: 16px; }
-  #signon .signon-body {
-    width: 100%; max-width: 420px;
-    background: #ece9d8;
-    border: 2px outset #d4d0c8;
-    border-top: none;
-    padding: 18px 18px 22px;
-    text-align: center;
-  }
-  #signon .logo {
-    font-size: 64px; line-height: 1;
-    margin: 4px 0 12px;
-    color: var(--aim-yellow);
-    text-shadow: 2px 2px 0 #b8860b, 4px 4px 6px rgba(0,0,0,0.3);
-    font-weight: bold;
-  }
-  #signon h1 {
-    margin: 0 0 14px;
-    font-size: 18px; font-weight: bold;
-    color: #222;
-  }
-  #signon label {
-    display: block; text-align: left;
-    font-size: 13px; margin: 10px 0 4px;
-    color: #222;
-  }
-  #signon .field {
-    width: 100%;
-    background: white;
-    border: 2px inset #d4d0c8;
-    padding: 8px 10px;
-    font-family: inherit; font-size: 15px;
-    color: #444;
-  }
-  #signon .signon-btn {
-    margin-top: 22px;
-    background: linear-gradient(180deg, #fffce0 0%, #ffcc00 100%);
-    border: 2px outset #d4d0c8;
-    padding: 12px 36px;
-    font-family: inherit; font-size: 16px; font-weight: bold;
-    color: #222;
-    cursor: pointer;
-    min-width: 140px;
-    min-height: 44px;
-  }
-  #signon .signon-btn:active {
-    border-style: inset;
-    background: linear-gradient(180deg, #ffcc00 0%, #fffce0 100%);
-  }
-  #signon .footer-links {
-    margin-top: 18px;
-    font-size: 12px; color: #555;
-  }
-  #signon .footer-links a {
-    color: #00008b; text-decoration: underline;
-    margin: 0 8px;
-  }
-
-  /* ===== IM Window ===== */
-  #app {
-    display: none;
-    width: 100%; height: 100%;
-    flex-direction: column;
-    max-width: 720px;
-    margin: 0 auto;
-  }
-  #app.visible { display: flex; }
-
   .window {
-    flex: 1 1 auto;
+    width: 100%; max-width: 560px;
+    max-height: 100%;
     display: flex; flex-direction: column;
-    background: var(--win-face);
+    background: #ece9d8;
     border: 2px outset #d4d0c8;
     box-shadow: 4px 4px 0 rgba(0,0,0,0.25);
-    min-height: 0;
   }
-
   .titlebar {
     background: linear-gradient(180deg, #0a64bd 0%, #0a246a 100%);
     color: white;
-    padding: 5px 6px 5px 8px;
+    padding: 6px 8px;
     display: flex; align-items: center; gap: 8px;
     font-size: 13px; font-weight: bold;
     flex: 0 0 auto;
   }
   .titlebar .icon {
     width: 16px; height: 16px;
-    background: var(--aim-yellow);
+    background: #ffcc00;
     border-radius: 50%;
-    display: inline-block;
     box-shadow: inset -2px -2px 0 rgba(0,0,0,0.2);
     flex-shrink: 0;
   }
@@ -166,9 +57,7 @@
     flex: 1; min-width: 0;
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   }
-  .titlebar .winbtns {
-    display: flex; gap: 2px;
-  }
+  .titlebar .winbtns { display: flex; gap: 2px; }
   .titlebar .winbtn {
     width: 22px; height: 20px;
     background: #d4d0c8;
@@ -178,9 +67,8 @@
     display: flex; align-items: center; justify-content: center;
     line-height: 1;
   }
-
   .menubar {
-    background: var(--win-face);
+    background: #ece9d8;
     padding: 2px 4px;
     font-size: 12px; color: #222;
     display: flex; gap: 14px;
@@ -188,185 +76,95 @@
     flex: 0 0 auto;
   }
   .menubar span { padding: 1px 4px; }
-  .menubar span u { text-decoration: underline; }
-
-  .buddyinfo {
-    background: var(--win-face);
-    padding: 6px 8px;
-    display: flex; align-items: center; gap: 8px;
-    border-bottom: 1px solid #aca899;
-    flex: 0 0 auto;
-  }
-  .buddyinfo .ghost-name {
-    flex: 1;
-    font-size: 13px; font-weight: bold; color: #222;
-  }
-  .buddyinfo .status-dot {
-    width: 8px; height: 8px;
-    background: #2a8f2a; border-radius: 50%;
-    box-shadow: 0 0 4px #4eee4e;
-  }
-  .buddyinfo .status-text {
-    font-size: 11px; color: #555;
-  }
-
-  .conversation {
+  .menubar u { text-decoration: underline; }
+  .body {
+    padding: 14px;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
     flex: 1 1 auto;
-    background: white;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
+    background: #ece9d8;
+  }
+  .greeting {
+    font-size: 13px;
+    color: #333;
+    margin: 0 0 14px;
     padding: 8px 10px;
-    font-size: 15px;
+    background: #fffce0;
+    border: 1px solid #d4cc88;
     line-height: 1.4;
-    color: #111;
-    border: 2px inset #d4d0c8;
-    margin: 4px;
-    min-height: 0;
   }
-  .conversation .msg {
-    margin: 4px 0;
-    word-wrap: break-word;
-    -webkit-user-select: text;
-    user-select: text;
+  .greeting b { color: #b22222; }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 10px;
   }
-  .conversation .msg .who {
-    font-weight: bold;
-  }
-  .conversation .msg.ghost .who { color: var(--ghost-color); }
-  .conversation .msg.player .who { color: var(--player-color); }
-  .conversation .system {
-    text-align: center;
-    color: #888;
-    font-style: italic;
-    font-size: 12px;
-    margin: 8px 0;
-  }
-  .typing {
-    color: #888; font-style: italic; font-size: 13px;
-    margin: 4px 0;
-  }
-  .typing .dot {
-    display: inline-block;
-    animation: blink 1.2s infinite;
-  }
-  .typing .dot:nth-child(2) { animation-delay: 0.2s; }
-  .typing .dot:nth-child(3) { animation-delay: 0.4s; }
-  @keyframes blink {
-    0%, 60%, 100% { opacity: 0.2; }
-    30% { opacity: 1; }
-  }
-
-  .formatbar {
-    background: var(--win-face);
-    padding: 4px 6px;
-    display: flex; gap: 4px; align-items: center;
-    border-top: 1px solid #aca899;
-    border-bottom: 1px solid #aca899;
-    flex: 0 0 auto;
-    font-size: 12px;
-  }
-  .formatbar .fbtn {
-    width: 26px; height: 24px;
-    background: var(--win-face);
-    border: 1px outset #fff;
-    display: flex; align-items: center; justify-content: center;
-    font-weight: bold; color: #222;
-    font-size: 12px;
-  }
-  .formatbar .fbtn.italic { font-style: italic; font-weight: normal; }
-  .formatbar .fbtn.under { text-decoration: underline; font-weight: normal; }
-  .formatbar .swatch {
-    width: 18px; height: 18px;
-    border: 1px solid #555;
-    margin-left: 4px;
-  }
-
-  .choices {
-    background: var(--win-face);
-    padding: 8px;
-    display: flex; flex-direction: column; gap: 8px;
-    flex: 0 0 auto;
-    border-top: 2px solid #aca899;
-    max-height: 45%;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-  }
-  .choice {
-    width: 100%;
-    background: linear-gradient(180deg, #fffce0 0%, #ffe680 100%);
+  .tile {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    background: linear-gradient(180deg, #ffffff 0%, #ece9d8 100%);
     border: 2px outset #d4d0c8;
-    padding: 12px 14px;
-    font-family: inherit;
-    font-size: 15px;
-    text-align: left;
+    text-decoration: none;
     color: #111;
-    min-height: 48px;
+    min-height: 76px;
     cursor: pointer;
-    line-height: 1.3;
-    -webkit-user-select: none;
-    user-select: none;
   }
-  .choice:active {
+  .tile:active {
     border-style: inset;
-    background: linear-gradient(180deg, #ffe680 0%, #fffce0 100%);
+    background: linear-gradient(180deg, #ece9d8 0%, #ffffff 100%);
   }
-  .choice[disabled] {
-    opacity: 0.5;
-    pointer-events: none;
+  .tile .glyph {
+    flex: 0 0 56px;
+    height: 56px;
+    background: linear-gradient(180deg, #fffce0 0%, #ffcc00 100%);
+    border: 2px outset #fff5b0;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: bold;
+    font-size: 13px;
+    color: #5a3a00;
+    text-shadow: 1px 1px 0 rgba(255,255,255,0.5);
+    letter-spacing: 1px;
   }
-
-  .placeholder-input {
-    background: white;
-    border: 2px inset #d4d0c8;
-    margin: 4px;
-    padding: 6px 8px;
-    color: #aaa;
-    font-size: 13px; font-style: italic;
+  .tile .meta { flex: 1; min-width: 0; }
+  .tile .name {
+    font-weight: bold;
+    font-size: 15px;
+    color: #00008b;
+    margin: 0 0 2px;
+  }
+  .tile .desc {
+    font-size: 12px;
+    color: #444;
+    line-height: 1.3;
+    margin: 0;
+  }
+  .tile.disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+  .tile.disabled .glyph {
+    background: linear-gradient(180deg, #e0e0e0 0%, #b8b8b8 100%);
+    border-color: #ccc;
+    color: #666;
+  }
+  .statusbar {
+    background: #ece9d8;
+    padding: 4px 8px;
+    border-top: 1px solid #aca899;
+    font-size: 11px;
+    color: #555;
+    display: flex; justify-content: space-between;
     flex: 0 0 auto;
-    min-height: 32px;
-    display: flex; align-items: center;
-  }
-
-  /* iPhone-specific: tighten padding */
-  @media (max-width: 480px) {
-    .conversation { font-size: 14px; padding: 6px 8px; }
-    .choice { font-size: 14px; padding: 10px 12px; min-height: 44px; }
-    .menubar { display: none; }
-    .formatbar { display: none; }
-    .placeholder-input { display: none; }
   }
 </style>
 </head>
 <body>
-
-<!-- ============== SIGN ON SCREEN ============== -->
-<div id="signon">
-  <div class="titlebar">
-    <span class="runner">🏃</span>
-    <span>Sign On</span>
-  </div>
-  <div class="signon-body">
-    <div class="logo">AIM</div>
-    <h1>AOL Instant Messenger</h1>
-    <label for="sn">Screen Name</label>
-    <input id="sn" class="field" type="text" value="" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">
-    <label for="pw">Password</label>
-    <input id="pw" class="field" type="password" value="••••••••" readonly>
-    <button class="signon-btn" id="signonBtn">Sign On</button>
-    <div class="footer-links">
-      <a href="#" onclick="return false;">Setup</a>·
-      <a href="#" onclick="return false;">Help</a>·
-      <a href="#" onclick="return false;">Sign On</a>
-    </div>
-  </div>
-</div>
-
-<!-- ============== IM WINDOW ============== -->
-<div id="app">
   <div class="window">
     <div class="titlebar">
       <span class="icon"></span>
-      <span class="title-text" id="titleText">— Instant Message</span>
+      <span class="title-text">Programs — Connection Established</span>
       <span class="winbtns">
         <span class="winbtn">_</span>
         <span class="winbtn">▢</span>
@@ -375,503 +173,31 @@
     </div>
     <div class="menubar">
       <span><u>F</u>ile</span>
-      <span><u>E</u>dit</span>
-      <span><u>I</u>nsert</span>
-      <span><u>P</u>eople</span>
+      <span><u>V</u>iew</span>
+      <span><u>H</u>elp</span>
     </div>
-    <div class="buddyinfo">
-      <span class="status-dot"></span>
-      <span class="ghost-name" id="ghostNameTop">—</span>
-      <span class="status-text">Online</span>
+    <div class="body">
+      <p class="greeting">
+        Welcome back. <b>3 unread transmissions.</b> Select a program to open.
+      </p>
+      <div class="grid">
+
+        <a class="tile" href="aim/">
+          <div class="glyph">AIM</div>
+          <div class="meta">
+            <p class="name">AOL Instant Messenger</p>
+            <p class="desc">A buddy is online. Tap to open chat.</p>
+          </div>
+        </a>
+
+        <!-- Add new props as <a class="tile" href="prop-name/"> blocks below -->
+
+      </div>
     </div>
-    <div class="conversation" id="conversation"></div>
-    <div class="formatbar">
-      <span class="fbtn">B</span>
-      <span class="fbtn italic">I</span>
-      <span class="fbtn under">U</span>
-      <span class="swatch" style="background:#000;"></span>
-      <span class="swatch" style="background:#b22222;"></span>
-      <span class="swatch" style="background:#00008b;"></span>
-      <span class="fbtn">☺</span>
-      <span class="fbtn">A</span>
+    <div class="statusbar">
+      <span>1 program · 0 errors</span>
+      <span>online</span>
     </div>
-    <div class="placeholder-input" id="inputPlaceholder">— select a response below —</div>
-    <div class="choices" id="choices"></div>
   </div>
-</div>
-
-<script>
-/* =====================================================================
-   CONFIG — edit these to taste
-   ===================================================================== */
-const CONFIG = {
-  playerScreenName: "TheParty",     // shows on outgoing messages
-  ghostScreenName: "L0stLantern_99", // shows on incoming + title bar
-  typingSpeedMs: 28,                // per-character typing delay (sim)
-  ghostMessageGapMs: 600,           // pause between ghost lines
-  postChoiceDelayMs: 450,           // pause after player taps a choice
-  sounds: {
-    signon:  "sounds/signon.wav",   // door-open (buddy signs on)
-    signoff: "sounds/signoff.wav",  // door-close (buddy signs off)
-    imrcv:   "sounds/imrcv.wav",    // incoming IM
-    imsend:  "sounds/imsend.wav",   // outgoing IM
-    goodbye: "sounds/goodbye.wav"   // farewell — plays before signoff
-  },
-  goodbyeToSignoffMs: 700           // pause between goodbye and door slam
-};
-
-/* =====================================================================
-   DIALOGUE TREE — replace with your campaign script later.
-   Each node: { ghost: [lines...], choices: [{ text, next }] }
-   - `next` references another node key, or "end" to sign off.
-   - Omit `choices` (or use []) on a terminal node to end silently.
-   ===================================================================== */
-const DIALOGUE = {
-  start: {
-    ghost: [
-      "hello?",
-      "is anyone there",
-      "i can see your candle. through the cracks.",
-      "please dont put it out"
-    ],
-    choices: [
-      { text: "uh... hi? who is this?", next: "who" },
-      { text: "what cracks? where are you?", next: "where" },
-      { text: "leave us alone.", next: "leave" }
-    ]
-  },
-
-  who: {
-    ghost: [
-      "i dont... remember my name",
-      "i remember the well though",
-      "the cold water. the stones. the rope",
-      "im sorry. its been a long time since anyone answered"
-    ],
-    choices: [
-      { text: "what well?", next: "well" },
-      { text: "are you... dead?", next: "dead" },
-      { text: "how long?", next: "howlong" }
-    ]
-  },
-
-  where: {
-    ghost: [
-      "between",
-      "between the candle and the dark behind it",
-      "you dont see me but i see all of you",
-      "the tall one with the axe. the small one writing. the one in the cloak"
-    ],
-    choices: [
-      { text: "stop watching us.", next: "leave" },
-      { text: "who are you?", next: "who" },
-      { text: "what do you want?", next: "want" }
-    ]
-  },
-
-  leave: {
-    ghost: [
-      "no",
-      "please",
-      "youre the first light in so long",
-      "i can help you. i know whats coming"
-    ],
-    choices: [
-      { text: "what's coming?", next: "warning" },
-      { text: "help us how?", next: "help" },
-      { text: "...fine. talk.", next: "want" }
-    ]
-  },
-
-  well: {
-    ghost: [
-      "the well in the village your party left this morning",
-      "she pushed me. i dont remember her face",
-      "only her ring. silver. with a black stone",
-      "if you see that ring. RUN"
-    ],
-    choices: [
-      { text: "tell me more about the ring.", next: "ring" },
-      { text: "who is 'she'?", next: "she" },
-      { text: "why are you telling us?", next: "want" }
-    ]
-  },
-
-  dead: {
-    ghost: [
-      "i think so",
-      "the line between is thinner than they told you",
-      "i can hear you because you stepped on the place where i fell",
-      "be careful where you set your bedroll tonight"
-    ],
-    choices: [
-      { text: "where exactly did you fall?", next: "well" },
-      { text: "can you be at peace?", next: "peace" }
-    ]
-  },
-
-  howlong: {
-    ghost: [
-      "the moon has been full thirty seven times",
-      "or maybe three hundred",
-      "time tastes the same down here"
-    ],
-    choices: [
-      { text: "what do you remember last?", next: "well" },
-      { text: "we'll help you.", next: "peace" }
-    ]
-  },
-
-  want: {
-    ghost: [
-      "a name. mine.",
-      "find it. say it out loud where i fell.",
-      "and then i can stop watching",
-      "but first. you have to survive what comes at the third bell"
-    ],
-    choices: [
-      { text: "the third bell?", next: "warning" },
-      { text: "where do we find your name?", next: "name" }
-    ]
-  },
-
-  warning: {
-    ghost: [
-      "tonight. when the temple bell rings three times",
-      "do not open the door",
-      "do not answer if it sounds like one of you",
-      "it will sound EXACTLY like one of you"
-    ],
-    choices: [
-      { text: "what is it?", next: "what_is_it" },
-      { text: "how do we kill it?", next: "kill" }
-    ]
-  },
-
-  ring: {
-    ghost: [
-      "silver band. black stone shaped like a tear",
-      "she wears it on her smallest finger",
-      "she will smile at you first. she always smiles first"
-    ],
-    choices: [
-      { text: "noted. anything else?", next: "want" },
-      { text: "is she here in this town?", next: "she" }
-    ]
-  },
-
-  she: {
-    ghost: [
-      "i cant say her name. it wont let me",
-      "but you saw her today. you bought bread from her",
-      "i tried to scream. you didnt hear"
-    ],
-    choices: [
-      { text: "the baker?!", next: "baker" },
-      { text: "what happens if we confront her?", next: "kill" }
-    ]
-  },
-
-  baker: {
-    ghost: [
-      "yes",
-      "burn the loaves before you eat them",
-      "all of them",
-      "i have to go. she's listening now"
-    ],
-    choices: [
-      { text: "wait — don't go!", next: "endsoon" }
-    ]
-  },
-
-  help: {
-    ghost: [
-      "i can see things you cant",
-      "ask me. while the candle holds.",
-      "but the wax is low"
-    ],
-    choices: [
-      { text: "what's coming tonight?", next: "warning" },
-      { text: "who pushed you?", next: "she" },
-      { text: "what do you want from us?", next: "want" }
-    ]
-  },
-
-  peace: {
-    ghost: [
-      "you would do that for me?",
-      "find my name. say it where i fell.",
-      "i will remember your kindness on the other side",
-      "i hope you live long enough to need the favor"
-    ],
-    choices: [
-      { text: "where do we find your name?", next: "name" },
-      { text: "we'll be back.", next: "endsoon" }
-    ]
-  },
-
-  name: {
-    ghost: [
-      "the chapel. the second pew from the back",
-      "carved underneath. i was thirteen",
-      "i wanted everyone to know i was there",
-      "now no one does"
-    ],
-    choices: [
-      { text: "we'll find it.", next: "endsoon" },
-      { text: "what was the third bell again?", next: "warning" }
-    ]
-  },
-
-  what_is_it: {
-    ghost: [
-      "it wears faces",
-      "it has worn mine",
-      "it will wear yours next if you let it in"
-    ],
-    choices: [
-      { text: "how do we stop it?", next: "kill" },
-      { text: "we'll bar the door.", next: "endsoon" }
-    ]
-  },
-
-  kill: {
-    ghost: [
-      "salt the threshold",
-      "do not look at its eyes",
-      "do not call each others names until sunrise",
-      "thats how it learns"
-    ],
-    choices: [
-      { text: "got it.", next: "endsoon" },
-      { text: "anything else?", next: "name" }
-    ]
-  },
-
-  endsoon: {
-    ghost: [
-      "the candle is almost out",
-      "find my name",
-      "and remember — she smiles first"
-    ],
-    choices: [
-      { text: "...goodbye.", next: "end" }
-    ]
-  },
-
-  end: {
-    ghost: [
-      "thank you"
-    ],
-    choices: []  // terminal — triggers sign-off
-  }
-};
-
-/* =====================================================================
-   AUDIO — Web Audio API: decode once, fire-and-forget BufferSources.
-   Avoids iOS WebKit's HTMLAudio clone limit which causes overlapping
-   short sounds to drop silently on iPad/iPhone.
-   ===================================================================== */
-let audioCtx = null;
-const audioBuffers = {};
-let audioUnlocked = false;
-
-function ensureCtx() {
-  if (!audioCtx) {
-    const AC = window.AudioContext || window.webkitAudioContext;
-    if (AC) audioCtx = new AC();
-  }
-  return audioCtx;
-}
-
-async function preloadSounds() {
-  const ctx = ensureCtx();
-  if (!ctx) return;
-  for (const [key, src] of Object.entries(CONFIG.sounds)) {
-    try {
-      const res = await fetch(src);
-      if (!res.ok) continue;
-      const arr = await res.arrayBuffer();
-      audioBuffers[key] = await new Promise((resolve, reject) => {
-        ctx.decodeAudioData(arr, resolve, reject);
-      });
-    } catch (e) { /* swallow per-sound failure */ }
-  }
-}
-
-function unlockAudio() {
-  if (audioUnlocked) return;
-  audioUnlocked = true;
-  const ctx = ensureCtx();
-  if (ctx && ctx.state === "suspended") ctx.resume().catch(() => {});
-}
-
-function play(name) {
-  const ctx = audioCtx;
-  const buf = audioBuffers[name];
-  if (!ctx || !buf) return;
-  try {
-    const src = ctx.createBufferSource();
-    src.buffer = buf;
-    src.connect(ctx.destination);
-    src.start(0);
-  } catch (e) { /* swallow */ }
-}
-
-/* =====================================================================
-   CHAT ENGINE
-   ===================================================================== */
-const $convo = document.getElementById("conversation");
-const $choices = document.getElementById("choices");
-const $titleText = document.getElementById("titleText");
-const $ghostNameTop = document.getElementById("ghostNameTop");
-const $inputPlaceholder = document.getElementById("inputPlaceholder");
-
-function scrollToBottom() {
-  requestAnimationFrame(() => { $convo.scrollTop = $convo.scrollHeight; });
-}
-
-function addSystem(text) {
-  const div = document.createElement("div");
-  div.className = "system";
-  div.textContent = text;
-  $convo.appendChild(div);
-  scrollToBottom();
-}
-
-function addMessage(who, name, text, color) {
-  const div = document.createElement("div");
-  div.className = "msg " + who;
-  const whoSpan = document.createElement("span");
-  whoSpan.className = "who";
-  whoSpan.textContent = name + ": ";
-  div.appendChild(whoSpan);
-  const txt = document.createElement("span");
-  txt.textContent = text;
-  div.appendChild(txt);
-  $convo.appendChild(div);
-  scrollToBottom();
-}
-
-function showTyping(name) {
-  const div = document.createElement("div");
-  div.className = "typing";
-  div.id = "typingIndicator";
-  div.innerHTML = name + " is typing<span class='dot'>.</span><span class='dot'>.</span><span class='dot'>.</span>";
-  $convo.appendChild(div);
-  scrollToBottom();
-}
-
-function hideTyping() {
-  const t = document.getElementById("typingIndicator");
-  if (t) t.remove();
-}
-
-function clearChoices() {
-  $choices.innerHTML = "";
-}
-
-function renderChoices(choices, onPick) {
-  clearChoices();
-  for (const c of choices) {
-    const btn = document.createElement("button");
-    btn.className = "choice";
-    btn.textContent = "› " + c.text;
-    btn.addEventListener("click", () => {
-      Array.from($choices.querySelectorAll(".choice")).forEach(b => b.disabled = true);
-      onPick(c);
-    });
-    $choices.appendChild(btn);
-  }
-}
-
-const wait = ms => new Promise(r => setTimeout(r, ms));
-
-async function ghostSay(line) {
-  showTyping(CONFIG.ghostScreenName);
-  const typingMs = Math.min(2200, Math.max(700, line.length * CONFIG.typingSpeedMs));
-  await wait(typingMs);
-  hideTyping();
-  play("imrcv");
-  addMessage("ghost", CONFIG.ghostScreenName, line);
-}
-
-async function playerSay(text) {
-  play("imsend");
-  addMessage("player", CONFIG.playerScreenName, text);
-}
-
-async function runNode(key) {
-  const node = DIALOGUE[key];
-  if (!node) {
-    addSystem("(dialogue node '" + key + "' not found)");
-    return;
-  }
-  clearChoices();
-  for (const line of node.ghost) {
-    await ghostSay(line);
-    await wait(CONFIG.ghostMessageGapMs);
-  }
-  if (!node.choices || node.choices.length === 0) {
-    await wait(900);
-    signOff();
-    return;
-  }
-  renderChoices(node.choices, async (choice) => {
-    await playerSay(choice.text);
-    await wait(CONFIG.postChoiceDelayMs);
-    runNode(choice.next);
-  });
-}
-
-function signOff() {
-  play("goodbye");
-  clearChoices();
-  $inputPlaceholder.textContent = "— conversation ended —";
-  setTimeout(() => {
-    play("signoff");
-    addSystem(CONFIG.ghostScreenName + " signed off at " + nowStr() + ".");
-  }, CONFIG.goodbyeToSignoffMs);
-}
-
-function nowStr() {
-  const d = new Date();
-  let h = d.getHours(); const m = d.getMinutes();
-  const ap = h >= 12 ? "PM" : "AM";
-  h = h % 12; if (h === 0) h = 12;
-  return h + ":" + (m < 10 ? "0" : "") + m + " " + ap;
-}
-
-/* =====================================================================
-   STARTUP
-   ===================================================================== */
-function startApp() {
-  document.getElementById("signon").style.display = "none";
-  document.getElementById("app").classList.add("visible");
-  $titleText.textContent = CONFIG.ghostScreenName + " — Instant Message";
-  $ghostNameTop.textContent = CONFIG.ghostScreenName;
-  document.getElementById("sn").value = CONFIG.playerScreenName;
-
-  setTimeout(() => {
-    play("signon");
-    addSystem(CONFIG.ghostScreenName + " signed on at " + nowStr() + ".");
-    setTimeout(() => runNode("start"), 1100);
-  }, 250);
-}
-
-window.addEventListener("DOMContentLoaded", () => {
-  preloadSounds();
-  document.getElementById("sn").value = CONFIG.playerScreenName;
-  document.getElementById("signonBtn").addEventListener("click", () => {
-    unlockAudio();
-    startApp();
-  });
-  document.addEventListener("touchstart", unlockAudio, { once: true, passive: true });
-  document.addEventListener("gesturestart", e => e.preventDefault());
-  document.addEventListener("touchmove", e => {
-    if (e.scale && e.scale !== 1) e.preventDefault();
-  }, { passive: false });
-});
-</script>
 </body>
 </html>

@@ -21,8 +21,6 @@ Prop folder names: lowercase, hyphen-separated, short noun (`aim`, `radio`, `sea
 
 URL pattern: `https://spourshalchi.github.io/<repo>/<prop-name>/`.
 
-> **Current state:** the haunted AIM prop is at repo root, not in `aim/` yet. Migration steps in the last section — do this once, when the next prop is ready to land.
-
 ## iPad/iOS gotchas — non-negotiable
 
 The AIM prop demonstrates working solutions for all of these. **Read its `index.html` before writing a new prop's audio or interaction code.**
@@ -130,17 +128,3 @@ Detects silent gaps, outputs `sounds/clip_NN.wav`. Listen and rename to whatever
 - Test only on desktop and ship — the audio bug only manifests on iPad
 - Use `file://` for local testing — `fetch()` and audio fail mysteriously
 - Hardcode the repo name in prop code; only README/CLAUDE reference it (so the repo can be renamed cleanly)
-
-## Migrating AIM out of root (do once, when the next prop lands)
-
-```bash
-mkdir aim
-git mv index.html aim/index.html
-git mv sounds aim/sounds
-# create a new root index.html as the landing page listing all props
-# update README.md to reflect the new structure
-git commit -am "Move AIM into /aim/ subfolder; add landing page"
-git push
-```
-
-After push, the new live URLs are `https://spourshalchi.github.io/<repo>/` (landing) and `/aim/` (the prop). Players' existing home-screen icons will break — they re-Add to Home Screen from the new URL. Worth it for the cleaner structure once 2+ props exist.

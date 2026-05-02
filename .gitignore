@@ -1,7 +1,6 @@
-# Source audio dump (already split into individual clips in /sounds)
-aimsounds.wav.wav
-sounds/aimsounds.wav.wav
-sounds/clip_*.wav
+# Source audio dumps + intermediate split clips (per-prop sounds folders)
+**/aimsounds.wav.wav
+**/clip_*.wav
 
 # OS junk
 Thumbs.db
