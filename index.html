@@ -668,47 +668,53 @@ const DIALOGUE = {
 };
 
 /* =====================================================================
-   AUDIO — unlock on first user gesture (iOS requirement)
+   AUDIO — Web Audio API: decode once, fire-and-forget BufferSources.
+   Avoids iOS WebKit's HTMLAudio clone limit which causes overlapping
+   short sounds to drop silently on iPad/iPhone.
    ===================================================================== */
-const audioCache = {};
+let audioCtx = null;
+const audioBuffers = {};
 let audioUnlocked = false;
 
-function preloadSounds() {
+function ensureCtx() {
+  if (!audioCtx) {
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (AC) audioCtx = new AC();
+  }
+  return audioCtx;
+}
+
+async function preloadSounds() {
+  const ctx = ensureCtx();
+  if (!ctx) return;
   for (const [key, src] of Object.entries(CONFIG.sounds)) {
-    const a = new Audio(src);
-    a.preload = "auto";
-    audioCache[key] = a;
+    try {
+      const res = await fetch(src);
+      if (!res.ok) continue;
+      const arr = await res.arrayBuffer();
+      audioBuffers[key] = await new Promise((resolve, reject) => {
+        ctx.decodeAudioData(arr, resolve, reject);
+      });
+    } catch (e) { /* swallow per-sound failure */ }
   }
 }
 
 function unlockAudio() {
   if (audioUnlocked) return;
   audioUnlocked = true;
-  for (const a of Object.values(audioCache)) {
-    a.muted = true;
-    a.volume = 0;
-    const restore = () => {
-      a.pause();
-      a.currentTime = 0;
-      a.muted = false;
-      a.volume = 1;
-    };
-    const p = a.play();
-    if (p && typeof p.then === "function") {
-      p.then(restore).catch(restore);
-    } else {
-      restore();
-    }
-  }
+  const ctx = ensureCtx();
+  if (ctx && ctx.state === "suspended") ctx.resume().catch(() => {});
 }
 
 function play(name) {
-  const src = audioCache[name];
-  if (!src) return;
+  const ctx = audioCtx;
+  const buf = audioBuffers[name];
+  if (!ctx || !buf) return;
   try {
-    const clone = src.cloneNode();
-    clone.volume = 1.0;
-    clone.play().catch(() => {});
+    const src = ctx.createBufferSource();
+    src.buffer = buf;
+    src.connect(ctx.destination);
+    src.start(0);
   } catch (e) { /* swallow */ }
 }
 
