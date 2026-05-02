@@ -1,0 +1,1094 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Photo">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#2a1a10">
+<title>Torn Photograph</title>
+<style>
+  :root {
+    --safe-top: env(safe-area-inset-top);
+    --safe-bot: env(safe-area-inset-bottom);
+    --safe-l: env(safe-area-inset-left);
+    --safe-r: env(safe-area-inset-right);
+    --paper: #f4ecd6;
+    --ink: #2a1a10;
+  }
+
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  html, body {
+    margin: 0; padding: 0;
+    height: 100%; width: 100%;
+    overflow: hidden;
+    overscroll-behavior: none;
+    -webkit-user-select: none; user-select: none; -webkit-touch-callout: none;
+    font-family: Georgia, "Times New Roman", serif;
+    color: var(--paper);
+    background:
+      radial-gradient(ellipse at 50% 30%, #4a3220 0%, #1a0e08 75%),
+      #1a0e08;
+  }
+  body {
+    width: 100dvw; height: 100dvh;
+    padding: var(--safe-top) var(--safe-r) var(--safe-bot) var(--safe-l);
+    display: flex; flex-direction: column;
+    position: relative;
+  }
+
+  body::before {
+    content: "";
+    position: fixed; inset: 0;
+    pointer-events: none;
+    opacity: 0.18;
+    background:
+      repeating-linear-gradient(92deg,
+        rgba(255,220,180,0.05) 0 2px,
+        transparent 2px 8px,
+        rgba(0,0,0,0.06) 8px 9px,
+        transparent 9px 14px);
+  }
+
+  /* ============== Splash ============== */
+  #splash {
+    position: fixed; inset: 0;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: calc(var(--safe-top) + 24px) 20px calc(var(--safe-bot) + 24px);
+    z-index: 100;
+    background: radial-gradient(ellipse at 50% 40%, #3a2618 0%, #100805 80%);
+    text-align: center;
+  }
+  #splash .note {
+    background: var(--paper);
+    color: var(--ink);
+    width: 100%; max-width: 380px;
+    padding: 26px 22px 22px;
+    box-shadow:
+      0 10px 30px rgba(0,0,0,0.6),
+      inset 0 0 60px rgba(120,80,40,0.12);
+    transform: rotate(-1.2deg);
+    border-radius: 1px;
+    position: relative;
+  }
+  #splash .note::before, #splash .note::after {
+    content: "";
+    position: absolute;
+    width: 70px; height: 18px;
+    background: rgba(220,200,140,0.55);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+  }
+  #splash .note::before { top: -8px; left: -10px; transform: rotate(-8deg); }
+  #splash .note::after  { top: -8px; right: -10px; transform: rotate(7deg); }
+  #splash h1 {
+    margin: 0 0 12px;
+    font-size: 22px; font-weight: normal;
+    letter-spacing: 0.04em;
+    font-variant: small-caps;
+  }
+  #splash p {
+    margin: 0 0 20px;
+    font-size: 15px; line-height: 1.5;
+    color: #4a3322;
+  }
+  #begin {
+    appearance: none;
+    background: var(--ink);
+    color: var(--paper);
+    border: 2px solid var(--ink);
+    padding: 12px 28px;
+    font-family: inherit;
+    font-size: 15px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    cursor: pointer;
+    min-height: 48px; min-width: 160px;
+    touch-action: manipulation;
+  }
+  #begin:active { background: #4a3322; }
+
+  /* ============== Game shell ============== */
+  #game {
+    flex: 1 1 auto;
+    width: 100%;
+    display: flex; flex-direction: column;
+    min-height: 0;
+  }
+
+  #hud {
+    flex: 0 0 auto;
+    width: 100%;
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 12px;
+    padding: 8px 16px 6px;
+  }
+  #timer {
+    font-family: "Courier New", monospace;
+    font-size: 30px;
+    letter-spacing: 0.08em;
+    color: #f0e6c8;
+    text-shadow: 0 0 12px rgba(255,180,100,0.3);
+    padding: 4px 10px;
+    cursor: pointer;
+    touch-action: manipulation;
+    min-width: 110px;
+    text-align: center;
+  }
+  #timer.warning { color: #ffaa55; }
+  #timer.critical {
+    color: #ff5544;
+    animation: pulse 0.6s steps(2) infinite;
+  }
+  @keyframes pulse { 50% { opacity: 0.55; } }
+
+  #hint {
+    font-size: 12px;
+    color: #c8b896;
+    opacity: 0.7;
+    font-style: italic;
+    margin-right: 8px;
+  }
+
+  /* ============== Workspace ============== */
+  #workspace {
+    flex: 1 1 auto;
+    position: relative;
+    width: 100%;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  #frame-hint {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    border: 1px dashed rgba(244, 236, 214, 0.18);
+    box-shadow: inset 0 0 50px rgba(0,0,0,0.4);
+    pointer-events: none;
+  }
+
+  #pieces-layer {
+    position: absolute;
+    inset: 0;
+    transition: opacity 0.7s ease;
+  }
+  #pieces-layer.faded {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .piece {
+    position: absolute;
+    top: 0; left: 0;
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+    background-color: #f4ecd6;
+    will-change: transform;
+    touch-action: none;
+    cursor: grab;
+    -webkit-filter: drop-shadow(0 3px 5px rgba(0,0,0,0.55));
+    filter: drop-shadow(0 3px 5px rgba(0,0,0,0.55));
+  }
+  .piece.dragging {
+    cursor: grabbing;
+    -webkit-filter: drop-shadow(0 8px 14px rgba(0,0,0,0.75));
+    filter: drop-shadow(0 8px 14px rgba(0,0,0,0.75));
+  }
+  .piece.snapping {
+    transition: transform 0.32s cubic-bezier(.3, 1.4, .5, 1);
+  }
+  .piece.locked { cursor: default; }
+
+  .piece .flash {
+    position: absolute; inset: 0;
+    background: #fff5d8;
+    opacity: 0;
+    pointer-events: none;
+  }
+  .piece.lock-flash .flash {
+    animation: lockFlash 0.6s ease-out;
+  }
+  @keyframes lockFlash {
+    0%   { opacity: 0; }
+    30%  { opacity: 0.55; }
+    100% { opacity: 0; }
+  }
+
+  /* ============== Photo card (post-restoration) ============== */
+  #photo-anchor {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    perspective: 1400px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.7s ease;
+  }
+  #photo-anchor.show {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  #photo-card {
+    position: relative;
+    width: 100%; height: 100%;
+    transform-style: preserve-3d;
+    transform: rotateY(0deg);
+    transition: transform 0.45s cubic-bezier(.4,.05,.4,1);
+    will-change: transform;
+    cursor: grab;
+    touch-action: none;
+  }
+  #photo-card.dragging {
+    transition: none;
+    cursor: grabbing;
+  }
+  #photo-card.wobble {
+    animation: wobble 1.6s ease-in-out 1;
+  }
+  @keyframes wobble {
+    0%, 100% { transform: rotateY(0deg); }
+    25%      { transform: rotateY(-14deg); }
+    65%      { transform: rotateY(10deg); }
+  }
+  #photo-card .face {
+    position: absolute; inset: 0;
+    background-size: 100% 100%;
+    background-position: center;
+    background-repeat: no-repeat;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    box-shadow:
+      0 10px 28px rgba(0,0,0,0.65),
+      0 0 0 4px rgba(244, 236, 214, 0.04);
+  }
+  #photo-card .face.back {
+    transform: rotateY(180deg);
+  }
+
+  #photo-glow {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    border-radius: 50%;
+    background: radial-gradient(ellipse, rgba(255,220,150,0.55) 0%, rgba(255,180,80,0) 65%);
+    opacity: 0;
+    mix-blend-mode: screen;
+  }
+  #photo-glow.flash {
+    animation: photoGlow 1.2s ease-out;
+  }
+  @keyframes photoGlow {
+    0%   { opacity: 0; transform: translate(-50%, -50%) scale(0.6); }
+    35%  { opacity: 1; transform: translate(-50%, -50%) scale(1.05); }
+    100% { opacity: 0; transform: translate(-50%, -50%) scale(1.4); }
+  }
+
+  #flip-hint {
+    position: absolute;
+    bottom: 22px; left: 50%;
+    transform: translateX(-50%);
+    color: #d8c8a8;
+    font-size: 12px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    opacity: 0;
+    transition: opacity 0.6s ease;
+    pointer-events: none;
+    text-align: center;
+    white-space: nowrap;
+  }
+  #flip-hint.show { opacity: 0.85; }
+  #flip-hint .arrow {
+    display: inline-block;
+    margin-left: 6px;
+    animation: hintBob 1.6s ease-in-out infinite;
+  }
+  @keyframes hintBob {
+    0%, 100% { transform: translateX(0); }
+    50%      { transform: translateX(6px); }
+  }
+
+  /* ============== Debug ============== */
+  #debug {
+    position: fixed;
+    top: calc(var(--safe-top) + 8px);
+    right: calc(var(--safe-r) + 8px);
+    z-index: 200;
+    background: rgba(20,12,8,0.92);
+    border: 1px solid #5a3a20;
+    color: #f0e6c8;
+    padding: 10px;
+    font-family: "Courier New", monospace;
+    font-size: 12px;
+    display: none;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 200px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.6);
+  }
+  #debug.open { display: flex; }
+  #debug .row {
+    display: flex; gap: 6px;
+    align-items: center; justify-content: space-between;
+  }
+  #debug .label { opacity: 0.75; font-size: 11px; }
+  #debug button {
+    appearance: none;
+    background: #2a1a10;
+    color: #f0e6c8;
+    border: 1px solid #5a3a20;
+    padding: 8px 10px;
+    font-family: inherit;
+    font-size: 12px;
+    cursor: pointer;
+    min-height: 36px;
+    flex: 1;
+    touch-action: manipulation;
+  }
+  #debug button:active { background: #4a3322; }
+  #debug .close {
+    align-self: flex-end;
+    flex: 0 0 auto;
+    padding: 2px 8px;
+    min-height: 0;
+    font-size: 14px;
+    line-height: 1;
+  }
+
+  /* ============== Fail ============== */
+  #fail {
+    position: fixed; inset: 0;
+    display: none;
+    align-items: center; justify-content: center;
+    flex-direction: column;
+    gap: 20px;
+    z-index: 150;
+    padding: 24px;
+    background: radial-gradient(ellipse at center, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.95) 80%);
+    opacity: 0;
+    transition: opacity 1.2s ease;
+    text-align: center;
+  }
+  #fail.show { display: flex; opacity: 1; }
+  #fail h2 {
+    margin: 0;
+    font-size: 22px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: #d8a878;
+    font-weight: normal;
+  }
+  #fail p {
+    margin: 0;
+    color: #b8a890;
+    font-style: italic;
+    max-width: 420px;
+    line-height: 1.5;
+    font-size: 15px;
+  }
+  #retry {
+    appearance: none;
+    background: transparent;
+    color: var(--paper);
+    border: 1px solid #5a3a20;
+    padding: 10px 22px;
+    font-family: inherit;
+    font-size: 13px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    cursor: pointer;
+    min-height: 44px;
+    touch-action: manipulation;
+  }
+  #retry:active { background: rgba(255,255,255,0.08); }
+</style>
+</head>
+<body>
+
+<!-- ===== Splash ===== -->
+<div id="splash">
+  <div class="note">
+    <h1>A torn photograph</h1>
+    <p>Pieces, scattered. The picture wants to be seen.<br>You won't have long.</p>
+    <button id="begin">Begin</button>
+  </div>
+</div>
+
+<!-- ===== Game ===== -->
+<div id="game" hidden>
+  <div id="hud">
+    <div id="timer" aria-label="time remaining">3:00</div>
+    <div id="hint">drag the pieces into place</div>
+  </div>
+  <div id="workspace">
+    <div id="frame-hint"></div>
+    <div id="pieces-layer"></div>
+    <div id="photo-glow"></div>
+    <div id="photo-anchor">
+      <div id="photo-card">
+        <div class="face front"></div>
+        <div class="face back"></div>
+      </div>
+    </div>
+    <div id="flip-hint"><span>swipe to flip</span><span class="arrow">↔</span></div>
+  </div>
+</div>
+
+<!-- ===== Debug ===== -->
+<div id="debug">
+  <div class="row">
+    <span class="label">DEBUG</span>
+    <button class="close" id="dbg-close">×</button>
+  </div>
+  <div class="row">
+    <button id="dbg-add">+30s</button>
+    <button id="dbg-sub">-30s</button>
+  </div>
+  <div class="row">
+    <button id="dbg-add5">+5s</button>
+    <button id="dbg-sub5">-5s</button>
+  </div>
+  <div class="row">
+    <button id="dbg-solve">solve</button>
+    <button id="dbg-rescatter">re-scatter</button>
+  </div>
+  <div class="row">
+    <span class="label" id="dbg-info"></span>
+  </div>
+</div>
+
+<!-- ===== Fail ===== -->
+<div id="fail">
+  <h2>Time's up</h2>
+  <p>The fragments crumbled away before you could finish piecing them together.</p>
+  <button id="retry">Try Again</button>
+</div>
+
+<script>
+"use strict";
+
+// ============================================================
+// CONFIG — tweak between sessions
+// ============================================================
+const CONFIG = {
+  // Grid is N x N. Total pieces = N*N.
+  // Common values: 3 (easy), 4 (medium), 5 (hard).
+  TILE_COUNT: 4,
+
+  // Total seconds on the clock.
+  TIME_SECONDS: 180,
+
+  // Image paths. Update as needed; falls back to placeholders if not found.
+  FRONT_IMAGE: "assets/front_1.png",
+  BACK_IMAGE:  "assets/back_1.png",
+
+  // Snap tuning.
+  SNAP_DISTANCE_PX: 38,   // how close (in pixels) before a piece locks in
+
+  // Tear-edge tuning.
+  EDGE_SEGMENTS: 6,       // number of jitter points per seam (more = more ragged)
+  EDGE_JITTER_FRAC: 0.16, // jitter relative to cell size (0..0.4 reasonable)
+
+  // Initial scatter rotation range, in degrees.
+  SCATTER_ROT_DEG: 14,
+};
+
+// ============================================================
+// State
+// ============================================================
+const N = CONFIG.TILE_COUNT;
+const TOTAL = N * N;
+
+const frontImage = CONFIG.FRONT_IMAGE;
+const backImage  = CONFIG.BACK_IMAGE;
+// Default aspect (4:3) used until the real image's dimensions resolve.
+let imgW = 4, imgH = 3;
+let frameW = 0, frameH = 0;    // render dimensions of the photo frame in workspace
+let cellW = 0, cellH = 0;      // per-piece cell size in pixels
+
+let pieces = [];               // array of piece objects
+let lockedCount = 0;
+let timeLeft = CONFIG.TIME_SECONDS;
+let timerId = null;
+let started = false;
+let ended = false;
+let restored = false;          // photo-card revealed after success
+
+// Drag state
+let dragging = null;
+let dragOffset = { x: 0, y: 0 };
+
+// Flip state
+let flipBaseAngle = 0;
+let flipDragStartX = 0;
+let flipDragging = false;
+let flipFirstUserAction = true;
+
+// Element refs
+const $splash = document.getElementById("splash");
+const $game = document.getElementById("game");
+const $timer = document.getElementById("timer");
+const $hint = document.getElementById("hint");
+const $workspace = document.getElementById("workspace");
+const $frameHint = document.getElementById("frame-hint");
+const $piecesLayer = document.getElementById("pieces-layer");
+const $photoAnchor = document.getElementById("photo-anchor");
+const $photoCard = document.getElementById("photo-card");
+const $photoFront = $photoCard.querySelector(".face.front");
+const $photoBack  = $photoCard.querySelector(".face.back");
+const $photoGlow = document.getElementById("photo-glow");
+const $flipHint = document.getElementById("flip-hint");
+const $debug = document.getElementById("debug");
+const $dbgInfo = document.getElementById("dbg-info");
+const $fail = document.getElementById("fail");
+
+// ============================================================
+// Image loading + dimension probe
+// ============================================================
+function probeImage(src) {
+  return new Promise((resolve) => {
+    const im = new Image();
+    im.onload = () => resolve({ ok: true, w: im.naturalWidth, h: im.naturalHeight });
+    im.onerror = () => resolve({ ok: false, w: 0, h: 0 });
+    im.src = src;
+  });
+}
+
+async function resolveImages() {
+  // Probe only to learn natural dimensions for layout. If probing fails
+  // (e.g. inside a sandboxed preview), keep the default 4:3 ratio — the
+  // pieces still render the real image via background-image.
+  const f = await probeImage(CONFIG.FRONT_IMAGE);
+  if (f.ok && f.w > 0 && f.h > 0) {
+    imgW = f.w; imgH = f.h;
+  }
+}
+
+// ============================================================
+// Layout — frame size based on workspace + image aspect
+// ============================================================
+function computeLayout() {
+  const ws = $workspace.getBoundingClientRect();
+  const aspect = imgW / imgH;
+  // Frame should leave some perimeter room for scattered pieces.
+  const maxW = ws.width  * 0.70;
+  const maxH = ws.height * 0.65;
+  let w = maxW, h = w / aspect;
+  if (h > maxH) { h = maxH; w = h * aspect; }
+  // Hard cap so it doesn't go silly on huge screens.
+  if (w > 560) { w = 560; h = w / aspect; }
+  frameW = Math.floor(w);
+  frameH = Math.floor(h);
+  cellW = frameW / N;
+  cellH = frameH / N;
+
+  // Position the dashed target hint
+  $frameHint.style.width  = frameW + "px";
+  $frameHint.style.height = frameH + "px";
+
+  // Photo card sits at frame center after restoration
+  $photoAnchor.style.width  = frameW + "px";
+  $photoAnchor.style.height = frameH + "px";
+  $photoFront.style.backgroundImage = `url("${frontImage}")`;
+  $photoBack.style.backgroundImage  = `url("${backImage}")`;
+
+  $photoGlow.style.width  = (frameW * 1.1) + "px";
+  $photoGlow.style.height = (frameH * 1.1) + "px";
+}
+
+function frameOriginInWorkspace() {
+  // Top-left of the photo frame within the workspace.
+  const wsRect = $workspace.getBoundingClientRect();
+  return {
+    x: (wsRect.width  - frameW) / 2,
+    y: (wsRect.height - frameH) / 2,
+  };
+}
+
+// ============================================================
+// Tear-edge generation
+// ============================================================
+// Generate a jagged polyline from start to end, with jitter perpendicular to the line.
+function generateSeam(start, end, segments, jitter) {
+  const pts = [{ x: start.x, y: start.y }];
+  const dx = end.x - start.x;
+  const dy = end.y - start.y;
+  const len = Math.hypot(dx, dy) || 1;
+  const nx = -dy / len, ny = dx / len; // perpendicular unit vector
+  for (let i = 1; i < segments; i++) {
+    const t = i / segments;
+    const baseX = start.x + dx * t;
+    const baseY = start.y + dy * t;
+    const j = (Math.random() - 0.5) * 2 * jitter;
+    pts.push({ x: baseX + nx * j, y: baseY + ny * j });
+  }
+  pts.push({ x: end.x, y: end.y });
+  return pts;
+}
+
+// Build N+1 rows of horizontal seams and N+1 cols of vertical seams.
+// Outer edges stay straight; internal edges are jagged but shared between neighbors.
+function buildSeams() {
+  const segs = CONFIG.EDGE_SEGMENTS;
+  const jitter = Math.min(cellW, cellH) * CONFIG.EDGE_JITTER_FRAC;
+
+  const hSeams = []; // hSeams[r][c] = points for top edge of cell (r,c)
+  for (let r = 0; r <= N; r++) {
+    hSeams.push([]);
+    for (let c = 0; c < N; c++) {
+      const a = { x: c * cellW,       y: r * cellH };
+      const b = { x: (c + 1) * cellW, y: r * cellH };
+      hSeams[r].push(
+        (r === 0 || r === N) ? [a, b] : generateSeam(a, b, segs, jitter)
+      );
+    }
+  }
+
+  const vSeams = []; // vSeams[r][c] = points for left edge of cell (r,c)
+  for (let r = 0; r < N; r++) {
+    vSeams.push([]);
+    for (let c = 0; c <= N; c++) {
+      const a = { x: c * cellW, y: r * cellH };
+      const b = { x: c * cellW, y: (r + 1) * cellH };
+      vSeams[r].push(
+        (c === 0 || c === N) ? [a, b] : generateSeam(a, b, segs, jitter)
+      );
+    }
+  }
+  return { hSeams, vSeams };
+}
+
+// Construct each piece's polygon by walking top → right → bottom → left.
+function buildPolygons(hSeams, vSeams) {
+  const polys = [];
+  for (let r = 0; r < N; r++) {
+    for (let c = 0; c < N; c++) {
+      const top    = hSeams[r][c];      // L→R
+      const right  = vSeams[r][c + 1];  // T→B
+      const bottom = hSeams[r + 1][c];  // L→R (will reverse)
+      const left   = vSeams[r][c];      // T→B (will reverse)
+
+      const poly = [];
+      // Top edge: include all points
+      for (const p of top) poly.push(p);
+      // Right edge: skip first (overlaps with top end)
+      for (let i = 1; i < right.length; i++) poly.push(right[i]);
+      // Bottom edge in reverse: skip its last point (overlaps with right end)
+      for (let i = bottom.length - 2; i >= 0; i--) poly.push(bottom[i]);
+      // Left edge in reverse: skip its last (= bottom's first) and first (= top's first)
+      for (let i = left.length - 2; i >= 1; i--) poly.push(left[i]);
+
+      polys.push(poly);
+    }
+  }
+  return polys;
+}
+
+function polygonToClipPath(poly) {
+  return "polygon(" + poly.map((p) => `${p.x.toFixed(2)}px ${p.y.toFixed(2)}px`).join(", ") + ")";
+}
+
+// ============================================================
+// Pieces
+// ============================================================
+function buildPieces() {
+  $piecesLayer.innerHTML = "";
+  pieces = [];
+  lockedCount = 0;
+
+  const { hSeams, vSeams } = buildSeams();
+  const polys = buildPolygons(hSeams, vSeams);
+
+  for (let r = 0; r < N; r++) {
+    for (let c = 0; c < N; c++) {
+      const idx = r * N + c;
+      const poly = polys[idx];
+
+      const el = document.createElement("div");
+      el.className = "piece";
+      el.style.width  = frameW + "px";
+      el.style.height = frameH + "px";
+      el.style.backgroundImage = `url("${frontImage}")`;
+      el.style.clipPath = polygonToClipPath(poly);
+      el.style.webkitClipPath = polygonToClipPath(poly);
+      // Rotate around the polygon's center so spinning feels natural
+      const cx = c * cellW + cellW / 2;
+      const cy = r * cellH + cellH / 2;
+      el.style.transformOrigin = `${cx}px ${cy}px`;
+
+      const flash = document.createElement("div");
+      flash.className = "flash";
+      el.appendChild(flash);
+
+      const piece = {
+        id: idx, r, c,
+        polyCenter: { x: cx, y: cy },
+        // x, y is the piece div's translate (workspace coords for top-left of full frame-sized div)
+        x: 0, y: 0, rot: 0,
+        locked: false, el,
+      };
+
+      el.addEventListener("pointerdown", (ev) => onPointerDown(ev, piece));
+      $piecesLayer.appendChild(el);
+      pieces.push(piece);
+    }
+  }
+}
+
+function applyTransform(p) {
+  p.el.style.transform = `translate(${p.x}px, ${p.y}px) rotate(${p.rot}deg)`;
+}
+
+function correctPosFor(p) {
+  // Piece div's correct top-left within workspace = frame top-left in workspace.
+  const o = frameOriginInWorkspace();
+  return { x: o.x, y: o.y };
+}
+
+function scatterPieces() {
+  const ws = $workspace.getBoundingClientRect();
+  const margin = 16;
+  for (const p of pieces) {
+    // Pick a random position for the piece's polygon center within the workspace.
+    const minX = cellW / 2 + margin;
+    const maxX = ws.width  - cellW / 2 - margin;
+    const minY = cellH / 2 + margin;
+    const maxY = ws.height - cellH / 2 - margin;
+    const targetCx = minX + Math.random() * Math.max(1, maxX - minX);
+    const targetCy = minY + Math.random() * Math.max(1, maxY - minY);
+    // Convert center → piece div top-left (subtract polygon-center offset).
+    p.x = targetCx - p.polyCenter.x;
+    p.y = targetCy - p.polyCenter.y;
+    p.rot = (Math.random() - 0.5) * 2 * CONFIG.SCATTER_ROT_DEG;
+    p.locked = false;
+    p.el.classList.remove("locked", "snapping", "lock-flash");
+    p.el.style.zIndex = String(10 + Math.floor(Math.random() * 50));
+    applyTransform(p);
+  }
+  lockedCount = 0;
+}
+
+function snapToCorrect(p) {
+  const c = correctPosFor(p);
+  p.x = c.x; p.y = c.y; p.rot = 0;
+  p.locked = true;
+  p.el.classList.add("snapping", "locked", "lock-flash");
+  p.el.style.zIndex = String(p.r * N + p.c); // back-to-front by row/col
+  applyTransform(p);
+  // remove transition after it finishes so dragging others feels snappy
+  setTimeout(() => p.el.classList.remove("snapping"), 350);
+  setTimeout(() => p.el.classList.remove("lock-flash"), 600);
+  lockedCount++;
+  if (lockedCount >= TOTAL && !ended) onWin();
+}
+
+// ============================================================
+// Drag
+// ============================================================
+function onPointerDown(ev, p) {
+  if (!started || ended || p.locked) return;
+  ev.preventDefault();
+  dragging = p;
+  p.el.setPointerCapture(ev.pointerId);
+  p.el.classList.add("dragging");
+  p.el.classList.remove("snapping");
+  p.el.style.zIndex = "9999";
+  const wsRect = $workspace.getBoundingClientRect();
+  const px = ev.clientX - wsRect.left;
+  const py = ev.clientY - wsRect.top;
+  dragOffset = { x: px - p.x, y: py - p.y };
+  document.addEventListener("pointermove", onPointerMove, { passive: false });
+  document.addEventListener("pointerup", onPointerUp, { passive: false });
+  document.addEventListener("pointercancel", onPointerUp, { passive: false });
+}
+
+function onPointerMove(ev) {
+  if (!dragging) return;
+  ev.preventDefault();
+  const wsRect = $workspace.getBoundingClientRect();
+  const px = ev.clientX - wsRect.left;
+  const py = ev.clientY - wsRect.top;
+  dragging.x = px - dragOffset.x;
+  dragging.y = py - dragOffset.y;
+  // Slight self-righting while dragging
+  dragging.rot *= 0.92;
+  applyTransform(dragging);
+}
+
+function onPointerUp(ev) {
+  if (!dragging) return;
+  const p = dragging;
+  dragging = null;
+  document.removeEventListener("pointermove", onPointerMove);
+  document.removeEventListener("pointerup", onPointerUp);
+  document.removeEventListener("pointercancel", onPointerUp);
+  p.el.classList.remove("dragging");
+  if (ev.pointerId !== undefined) {
+    try { p.el.releasePointerCapture(ev.pointerId); } catch {}
+  }
+
+  // Snap test: distance between piece's polygon center and where it should be
+  const correct = correctPosFor(p);
+  const pieceCenterX = p.x + p.polyCenter.x;
+  const pieceCenterY = p.y + p.polyCenter.y;
+  const targetCenterX = correct.x + p.polyCenter.x;
+  const targetCenterY = correct.y + p.polyCenter.y;
+  const dist = Math.hypot(pieceCenterX - targetCenterX, pieceCenterY - targetCenterY);
+  if (dist <= CONFIG.SNAP_DISTANCE_PX) {
+    snapToCorrect(p);
+  } else {
+    // Just settle in place with a small relax
+    p.el.classList.add("snapping");
+    setTimeout(() => p.el.classList.remove("snapping"), 320);
+    applyTransform(p);
+  }
+}
+
+// ============================================================
+// Timer
+// ============================================================
+function fmt(s) {
+  s = Math.max(0, Math.floor(s));
+  const m = Math.floor(s / 60);
+  const r = s % 60;
+  return `${m}:${String(r).padStart(2, "0")}`;
+}
+
+function paintTimer() {
+  $timer.textContent = fmt(timeLeft);
+  $timer.classList.toggle("critical", timeLeft <= 10);
+  $timer.classList.toggle("warning", timeLeft > 10 && timeLeft <= 30);
+  if ($debug.classList.contains("open")) {
+    $dbgInfo.textContent = `t=${timeLeft}s · ${N}x${N} · locked=${lockedCount}/${TOTAL}`;
+  }
+}
+
+function startTimer() {
+  if (timerId) clearInterval(timerId);
+  timerId = setInterval(() => {
+    if (ended) return;
+    timeLeft--;
+    paintTimer();
+    if (timeLeft <= 0) {
+      timeLeft = 0;
+      paintTimer();
+      onFail();
+    }
+  }, 1000);
+}
+
+function stopTimer() {
+  if (timerId) clearInterval(timerId);
+  timerId = null;
+}
+
+function adjustTime(delta) {
+  timeLeft = Math.max(0, timeLeft + delta);
+  paintTimer();
+}
+
+// ============================================================
+// Win — restoration animation + flip enable
+// ============================================================
+function onWin() {
+  if (ended) return;
+  ended = true;
+  stopTimer();
+
+  // Tiny pause so the final snap is felt.
+  setTimeout(() => {
+    // Glow flash at the photo
+    $photoGlow.classList.remove("flash");
+    void $photoGlow.offsetWidth; // restart animation
+    $photoGlow.classList.add("flash");
+
+    // Cross-fade pieces out, photo card in
+    setTimeout(() => {
+      $piecesLayer.classList.add("faded");
+      $photoAnchor.classList.add("show");
+    }, 250);
+
+    // After the fade, wobble the card and show the swipe hint
+    setTimeout(() => {
+      $photoCard.classList.add("wobble");
+      restored = true;
+      enableFlipDrag();
+    }, 1100);
+
+    setTimeout(() => {
+      $flipHint.classList.add("show");
+    }, 1700);
+  }, 300);
+}
+
+// ============================================================
+// Flip handlers — horizontal swipe rotates around Y axis
+// ============================================================
+function flipPointerDown(ev) {
+  if (!restored) return;
+  ev.preventDefault();
+  flipDragging = true;
+  flipDragStartX = ev.clientX;
+  $photoCard.classList.add("dragging");
+  $photoCard.classList.remove("wobble");
+  try { $photoCard.setPointerCapture(ev.pointerId); } catch {}
+  document.addEventListener("pointermove", flipPointerMove, { passive: false });
+  document.addEventListener("pointerup", flipPointerUp, { passive: false });
+  document.addEventListener("pointercancel", flipPointerUp, { passive: false });
+}
+
+function flipPointerMove(ev) {
+  if (!flipDragging) return;
+  ev.preventDefault();
+  const dx = ev.clientX - flipDragStartX;
+  // 1.0 of width = 180deg of rotation
+  const angle = flipBaseAngle + (dx / Math.max(1, frameW)) * 180;
+  $photoCard.style.transform = `rotateY(${angle}deg)`;
+}
+
+function flipPointerUp(ev) {
+  if (!flipDragging) return;
+  flipDragging = false;
+  document.removeEventListener("pointermove", flipPointerMove);
+  document.removeEventListener("pointerup", flipPointerUp);
+  document.removeEventListener("pointercancel", flipPointerUp);
+  $photoCard.classList.remove("dragging");
+  const dx = ev.clientX - flipDragStartX;
+  const swept = (dx / Math.max(1, frameW)) * 180;
+  let newBase = flipBaseAngle;
+  // Threshold: swept ~50deg = commit a flip. Otherwise spring back.
+  if (swept >  50) newBase = flipBaseAngle + 180;
+  if (swept < -50) newBase = flipBaseAngle - 180;
+  flipBaseAngle = newBase;
+  $photoCard.style.transform = `rotateY(${newBase}deg)`;
+  // Once user has interacted, fade out the hint
+  if (flipFirstUserAction) {
+    flipFirstUserAction = false;
+    $flipHint.classList.remove("show");
+  }
+}
+
+function enableFlipDrag() {
+  $photoCard.addEventListener("pointerdown", flipPointerDown);
+}
+function disableFlipDrag() {
+  $photoCard.removeEventListener("pointerdown", flipPointerDown);
+}
+
+// ============================================================
+// Fail — crumble pieces, show retry
+// ============================================================
+function onFail() {
+  if (ended) return;
+  ended = true;
+  stopTimer();
+  crumble();
+  setTimeout(() => $fail.classList.add("show"), 1700);
+}
+
+function crumble() {
+  for (const p of pieces) {
+    const dx  = (Math.random() - 0.5) * 700;
+    const dy  = 500 + Math.random() * 500;
+    const rot = (Math.random() - 0.5) * 720;
+    const delay = Math.random() * 600;
+    p.el.style.transition = `transform 1.6s cubic-bezier(.4,.05,.7,1) ${delay}ms, opacity 1.6s ease ${delay}ms`;
+    p.el.style.transform  = `translate(${p.x + dx}px, ${p.y + dy}px) rotate(${p.rot + rot}deg)`;
+    p.el.style.opacity    = "0";
+  }
+}
+
+// ============================================================
+// Debug — long-press timer to toggle
+// ============================================================
+let pressTimer = null;
+(function armDebug(target) {
+  const begin = () => {
+    pressTimer = setTimeout(() => {
+      $debug.classList.toggle("open");
+      paintTimer();
+      if (navigator.vibrate) navigator.vibrate(8);
+    }, 1200);
+  };
+  const cancel = () => { if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; } };
+  target.addEventListener("touchstart", begin, { passive: true });
+  target.addEventListener("mousedown", begin);
+  ["touchend", "touchcancel", "mouseup", "mouseleave"].forEach((ev) =>
+    target.addEventListener(ev, cancel, { passive: true })
+  );
+})($timer);
+
+document.getElementById("dbg-close").addEventListener("click", () => $debug.classList.remove("open"));
+document.getElementById("dbg-add").addEventListener("click",  () => adjustTime(+30));
+document.getElementById("dbg-sub").addEventListener("click",  () => adjustTime(-30));
+document.getElementById("dbg-add5").addEventListener("click", () => adjustTime(+5));
+document.getElementById("dbg-sub5").addEventListener("click", () => adjustTime(-5));
+document.getElementById("dbg-solve").addEventListener("click", () => {
+  if (ended) return;
+  // Snap every remaining piece into place
+  for (const p of pieces) {
+    if (!p.locked) snapToCorrect(p);
+  }
+});
+document.getElementById("dbg-rescatter").addEventListener("click", () => {
+  if (ended) return;
+  scatterPieces();
+});
+
+// ============================================================
+// Start flow
+// ============================================================
+async function startGame() {
+  await resolveImages();
+  $splash.style.display = "none";
+  $game.hidden = false;
+  // Wait a frame so workspace has its real size
+  await new Promise((r) => requestAnimationFrame(r));
+  computeLayout();
+  buildPieces();
+  scatterPieces();
+  timeLeft = CONFIG.TIME_SECONDS;
+  paintTimer();
+  started = true;
+  ended = false;
+  restored = false;
+  flipBaseAngle = 0;
+  flipFirstUserAction = true;
+  $photoCard.style.transform = "rotateY(0deg)";
+  $piecesLayer.classList.remove("faded");
+  $photoAnchor.classList.remove("show");
+  $photoCard.classList.remove("wobble");
+  $flipHint.classList.remove("show");
+  disableFlipDrag();
+  startTimer();
+}
+
+document.getElementById("begin").addEventListener("click", startGame);
+
+document.getElementById("retry").addEventListener("click", () => {
+  $fail.classList.remove("show");
+  ended = false;
+  // Rebuild fresh pieces (crumble mangled their inline styles)
+  buildPieces();
+  scatterPieces();
+  timeLeft = CONFIG.TIME_SECONDS;
+  paintTimer();
+  startTimer();
+});
+
+// Block pinch-zoom on iOS
+document.addEventListener("touchmove", (e) => {
+  if (e.scale && e.scale !== 1) e.preventDefault();
+}, { passive: false });
+document.addEventListener("gesturestart", (e) => e.preventDefault());
+
+// Initial paint (in case splash bypassed)
+paintTimer();
+</script>
+</body>
+</html>
