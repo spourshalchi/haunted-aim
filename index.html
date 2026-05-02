@@ -685,7 +685,20 @@ function unlockAudio() {
   if (audioUnlocked) return;
   audioUnlocked = true;
   for (const a of Object.values(audioCache)) {
-    a.play().then(() => { a.pause(); a.currentTime = 0; }).catch(() => {});
+    a.muted = true;
+    a.volume = 0;
+    const restore = () => {
+      a.pause();
+      a.currentTime = 0;
+      a.muted = false;
+      a.volume = 1;
+    };
+    const p = a.play();
+    if (p && typeof p.then === "function") {
+      p.then(restore).catch(restore);
+    } else {
+      restore();
+    }
   }
 }
 
